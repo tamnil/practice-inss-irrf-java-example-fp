@@ -10,6 +10,10 @@ import java.util.Map;
 
 
 
+interface EquationContainer {
+    public String sayHello();
+}
+
 public class InssFgts{
 
     // estrutura de dados
@@ -25,12 +29,14 @@ public class InssFgts{
         }
     }
 
+
+
+
     // EQUACOES
     public static double salarioBruto(double valorHora, double horasSemanais) {
-        return valorHora * horasSemanais *4.5;
+        return valorHora * horasSemanais * 4.5;
     }
     public static double salarioLiquido(List <TabelaPadrao> tabelaInss,List <TabelaPadrao> tabelaIrrf, double salarioBruto) {
-        // double salarioBruto = salarioBruto(valorHora,horasSemanais);
         return  salarioBruto - descontosInss(tabelaInss,salarioBruto) - descontosIrrf(tabelaIrrf,salarioBruto) ;
     }
     public static double descontosInss (List<TabelaPadrao> tabela, double salarioBruto  ) {
@@ -69,7 +75,8 @@ public class InssFgts{
 
     public static void main(String []args) {
 
-        //TABELAS
+        //  ************************ INPUTS
+        //tabelas
         List<TabelaPadrao> tabelaInss = new ArrayList<>();
         tabelaInss.add(new TabelaPadrao(0.0,      0.0,      0.0));
         tabelaInss.add(new TabelaPadrao(1693.72,  0.08,     0.0));
@@ -85,9 +92,11 @@ public class InssFgts{
         tabelaIrrf.add(new TabelaPadrao(4664.68,  0.275,  869.36));
         tabelaIrrf.add(new TabelaPadrao(1e20,     0.275,  869.36));
 
+EquationContainer eq = () -> {
+return "asdf";
+};
 
-
-        // VARIAVEIS DE ENTRADA
+        // variaveis de entrada
         final double valorHora = 102,
               horasSemanais=40;
 
@@ -95,9 +104,8 @@ public class InssFgts{
 
         double salarioBruto = salarioBruto(valorHora,horasSemanais);
 
-// saida:
-        // double teste = aliquota(1000);
-        System.out.println("Hello World,%f"  ); // prints Hello World
+        //  *************************** SAIDA:
+
         System.out.println("aliquota inss " + aliquotaInss(tabelaInss,salarioBruto) );
         System.out.println("descontosInss " + descontosInss(tabelaInss,salarioBruto) );
 
