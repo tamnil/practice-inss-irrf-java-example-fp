@@ -58,21 +58,25 @@ public class InssFgts{
         calcDescontosIrrf = (tabela,salarioBruto) ->
         (salarioBruto * aliquotaIrrf.apply(tabela,salarioBruto)) - deducaoIrrf.apply(tabela,salarioBruto);
 
-    public static BiFunction < List<TabelaPadrao>, Double , Double>
-        calcDescontosInss = (tabela,salarioBruto) -> {
+    public static BiFunction < List<TabelaPadrao>, Double , Function<Double,Double>>
+        calcDescontosInss = (tabela,salarioBruto) -> teto ->  {
             double preCalculoInss =   salarioBruto * aliquotaInss.apply( tabela, salarioBruto);
-            return preCalculoInss > 621.03 ? 621.03 : preCalculoInss;  // retirar esse valor daqui
+            return preCalculoInss > teto ? teto : preCalculoInss;
         };
 
-    public static BiFunction < List<TabelaPadrao>, List<TabelaPadrao> , Function<Double,Double>>
-        salarioLiquido = (tabelaInss,tabelaIrrf) -> salarioBruto -> {
-            double descontosInss = calcDescontosInss.apply(tabelaInss,salarioBruto);
+    public static BiFunction < List<TabelaPadrao>, List<TabelaPadrao> , BiFunction<Double,Double,Double>>
+        salarioLiquido = (tabelaInss,tabelaIrrf) -> (teto,salarioBruto) -> {
+            double descontosInss = calcDescontosInss.apply(tabelaInss,salarioBruto).apply(teto);
             double descontosIrrf = calcDescontosIrrf.apply(tabelaIrrf,salarioBruto);
             return salarioBruto - descontosInss - descontosIrrf;
         };
 
     public static BiFunction < Double, Double, Double>
         calcSalarioBruto = (valorHora, horasSemanais) ->  valorHora * horasSemanais * 4.5;
+
+    // verificador de horas
+    public static BiFunction < Double, Double, Boolean>
+        isHorasUltrapassadas = (horasSemanaisMax, horasSemanais) -> horasSemanais > horasSemanaisMax;
 
 
 
@@ -98,7 +102,9 @@ public class InssFgts{
 
         // variaveis de entrada
         final double valorHora = 102,
-              horasSemanais=40;
+              horasSemanais=45,
+              tetoInss = 621.03,
+              maxHorasSemanais = 44.0;
 
 
 
@@ -106,12 +112,13 @@ public class InssFgts{
 
         //  *************************** SAIDA:
 
+        System.out.println("horas semanais ultrapassadas?:" + isHorasUltrapassadas.apply(maxHorasSemanais,horasSemanais) );
         System.out.println("aliquota inss " + aliquotaInss.apply(tabelaInss,salarioBruto) );
         System.out.println("descontosInss " + calcDescontosInss.apply(tabelaInss,salarioBruto) );
         System.out.println("aliquota irff " + aliquotaIrrf.apply(tabelaIrrf,salarioBruto) );
         System.out.println("deducao irff " + deducaoIrrf.apply(tabelaIrrf,salarioBruto) );
         System.out.println("desc. irff " + calcDescontosIrrf.apply(tabelaIrrf,salarioBruto) );
-        System.out.println("salarioLiquido " + salarioLiquido.apply(tabelaInss,tabelaIrrf).apply(salarioBruto) );
+        System.out.println("salarioLiquido " + salarioLiquido.apply(tabelaInss,tabelaIrrf).apply(tetoInss,salarioBruto) );
         System.out.println("salarioBruto " + calcSalarioBruto.apply(valorHora,horasSemanais) );
     }
 
