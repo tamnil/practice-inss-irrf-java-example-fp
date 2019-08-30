@@ -1,3 +1,11 @@
+/*
+ * Tamnil Saito Junior 2019
+ *
+ * Prcticing fp-java
+ * please use java8+
+ * tested on Ubuntu
+ */
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,9 +34,6 @@ public class InssFgts{
     }
 
     // EQUACOES
-    public static BiFunction < Double, Double, Double>
-        calcSalarioBruto = (valorHora, horasSemanais) ->  valorHora * horasSemanais * 4.5;
-
     public static BiFunction < List<TabelaPadrao>, Double , TabelaPadrao> filtraInss = (tabela,salarioBruto) ->
         tabela.stream().filter(a->  ( salarioBruto < a.salario) ? true : false )
         .reduce((a,b) -> a.salario < b.salario ? b : a).get();
@@ -56,7 +61,7 @@ public class InssFgts{
     public static BiFunction < List<TabelaPadrao>, Double , Double>
         calcDescontosInss = (tabela,salarioBruto) -> {
             double preCalculoInss =   salarioBruto * aliquotaInss.apply( tabela, salarioBruto);
-            return preCalculoInss > 621.03 ? 621.03 : preCalculoInss;
+            return preCalculoInss > 621.03 ? 621.03 : preCalculoInss;  // retirar esse valor daqui
         };
 
     public static BiFunction < List<TabelaPadrao>, List<TabelaPadrao> , Function<Double,Double>>
@@ -65,6 +70,9 @@ public class InssFgts{
             double descontosIrrf = calcDescontosIrrf.apply(tabelaIrrf,salarioBruto);
             return salarioBruto - descontosInss - descontosIrrf;
         };
+
+    public static BiFunction < Double, Double, Double>
+        calcSalarioBruto = (valorHora, horasSemanais) ->  valorHora * horasSemanais * 4.5;
 
 
 
