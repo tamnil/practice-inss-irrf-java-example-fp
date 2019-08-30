@@ -7,6 +7,8 @@ import java.util.OptionalDouble;
 import java.util.Optional;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.BiFunction;
 
 
 
@@ -29,49 +31,38 @@ public class InssFgts{
         }
     }
 
-
-
-
     // EQUACOES
-    public static double salarioBruto(double valorHora, double horasSemanais) {
-        return valorHora * horasSemanais * 4.5;
-    }
-    public static double salarioLiquido(List <TabelaPadrao> tabelaInss,List <TabelaPadrao> tabelaIrrf, double salarioBruto) {
-        return  salarioBruto - descontosInss(tabelaInss,salarioBruto) - descontosIrrf(tabelaIrrf,salarioBruto) ;
-    }
-    public static double descontosInss (List<TabelaPadrao> tabela, double salarioBruto  ) {
-        double preCalculoInss =   salarioBruto * aliquotaInss( tabela, salarioBruto);
-        return preCalculoInss > 621.03 ? 621.03 : preCalculoInss;
-    }
-    public static double descontosIrrf (List<TabelaPadrao> tabela, double salarioBruto) {
-        return  (salarioBruto * aliquotaIrrf(tabela,salarioBruto)) - deducaoIrrf(tabela,salarioBruto);
-    }
-
-    //  -aliquotas
-    public static double aliquotaInss( List<TabelaPadrao> tabela ,double salarioBruto){
-        return filtraInss(tabela,salarioBruto).aliquota;
-    }
-    public static double aliquotaIrrf(  List<TabelaPadrao> tabela, double salarioBruto){
-        return filtraIrrf(tabela,salarioBruto).aliquota;
-    }
-    // -deducoes
-    public static double deducaoIrrf( List<TabelaPadrao> tabela, double salarioBruto){
-        return   filtraIrrf(tabela,salarioBruto).deducao;
-    }
-
+    public static BiFunction < Double, Double, Double> calcSalarioBruto = (valorHora, horasSemanais) ->  valorHora * horasSemanais * 4.5;
 
     // FUNCOES AUXILIARES
-
-    public static TabelaPadrao filtraInss(List <TabelaPadrao> tabela, double salarioBruto) {
-        return tabela.stream()
-            .filter(a->  ( salarioBruto < a.salario) ? true : false )
+    public static BiFunction < List<TabelaPadrao>, Double , TabelaPadrao> filtraInss = (tabela,salarioBruto) ->
+         tabela.stream().filter(a->  ( salarioBruto < a.salario) ? true : false )
             .reduce((a,b) -> a.salario < b.salario ? b : a).get();
-    }
-    public static TabelaPadrao filtraIrrf(List <TabelaPadrao> tabela, double salarioBruto) {
-        return tabela.stream()
-            .filter(a -> a.salario < salarioBruto ? true : false)
+
+    public static BiFunction < List<TabelaPadrao>, Double , TabelaPadrao> filtraIrrf = (tabela,salarioBruto) ->
+         tabela.stream().filter(a -> a.salario < salarioBruto ? true : false)
             .reduce((a,b) -> b).get();
-    }
+
+    //  -aliquotas
+    public static BiFunction < List<TabelaPadrao>, Double , Double> aliquotaInss = (tabela,salarioBruto) ->filtraInss.apply(tabela,salarioBruto).aliquota;
+    public static BiFunction < List<TabelaPadrao>, Double , Double> aliquotaIrrf = (tabela,salarioBruto) ->filtraIrrf.apply(tabela,salarioBruto).aliquota;
+
+    //  -deducoes
+    public static BiFunction < List<TabelaPadrao>, Double , Double> deducaoIrrf = (tabela,salarioBruto) -> filtraIrrf.apply(tabela,salarioBruto).deducao;
+
+    //  -descontos
+    public static BiFunction < List<TabelaPadrao>, Double , Double> descontosIrrf = (tabela,salarioBruto) ->
+          (salarioBruto * aliquotaIrrf.apply(tabela,salarioBruto)) - deducaoIrrf.apply(tabela,salarioBruto);
+
+    public static BiFunction < List<TabelaPadrao>, Double , Double> descontosInss = (tabela,salarioBruto) -> {
+        double preCalculoInss =   salarioBruto * aliquotaInss.apply( tabela, salarioBruto);
+        return preCalculoInss > 621.03 ? 621.03 : preCalculoInss;
+    };
+
+    public static BiFunction < List<TabelaPadrao>, List<TabelaPadrao> , Function<Double,Double>> salarioLiquido = (tabelaInss,tabelaIrrf) -> salarioBruto ->
+        salarioBruto - descontosInss.apply(tabelaInss,salarioBruto) - descontosIrrf.apply(tabelaIrrf,salarioBruto) ;
+
+
 
     public static void main(String []args) {
 
@@ -92,9 +83,12 @@ public class InssFgts{
         tabelaIrrf.add(new TabelaPadrao(4664.68,  0.275,  869.36));
         tabelaIrrf.add(new TabelaPadrao(1e20,     0.275,  869.36));
 
-EquationContainer eq = () -> {
-return "asdf";
-};
+        Function<Integer,
+            Function<Integer,
+            Function<Integer, Integer> > >
+                triadder = u -> w -> v -> u + w + v;
+
+
 
         // variaveis de entrada
         final double valorHora = 102,
@@ -102,18 +96,18 @@ return "asdf";
 
 
 
-        double salarioBruto = salarioBruto(valorHora,horasSemanais);
+        double salarioBruto = calcSalarioBruto.apply(valorHora,horasSemanais);
 
         //  *************************** SAIDA:
 
-        System.out.println("aliquota inss " + aliquotaInss(tabelaInss,salarioBruto) );
-        System.out.println("descontosInss " + descontosInss(tabelaInss,salarioBruto) );
+        System.out.println("aliquota inss " + aliquotaInss.apply(tabelaInss,salarioBruto) );
+        System.out.println("descontosInss " + descontosInss.apply(tabelaInss,salarioBruto) );
 
-        System.out.println("aliquota irff " + aliquotaIrrf(tabelaIrrf,salarioBruto) );
-        System.out.println("deducao irff " + deducaoIrrf(tabelaIrrf,salarioBruto) );
-        System.out.println("desc. irff " + descontosIrrf(tabelaIrrf,salarioBruto) );
-        System.out.println("salarioLiquido " + salarioLiquido(tabelaInss,tabelaIrrf,salarioBruto) );
-        System.out.println("salarioBruto " + salarioBruto(valorHora,horasSemanais) );
+        System.out.println("aliquota irff " + aliquotaIrrf.apply(tabelaIrrf,salarioBruto) );
+        System.out.println("deducao irff " + deducaoIrrf.apply(tabelaIrrf,salarioBruto) );
+        System.out.println("desc. irff " + descontosIrrf.apply(tabelaIrrf,salarioBruto) );
+        System.out.println("salarioLiquido " + salarioLiquido.apply(tabelaInss,tabelaIrrf).apply(salarioBruto) );
+        System.out.println("salarioBruto " + calcSalarioBruto.apply(valorHora,horasSemanais) );
     }
 
 }
