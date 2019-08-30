@@ -7,14 +7,8 @@
  */
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
-import java.util.stream.DoubleStream;
-import java.util.OptionalDouble;
-import java.util.Optional;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.function.BiFunction;
 
