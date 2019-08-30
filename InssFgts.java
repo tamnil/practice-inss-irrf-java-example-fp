@@ -10,12 +10,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.BiFunction;
 
-
-
-interface EquationContainer {
-    public String sayHello();
-}
-
 public class InssFgts{
 
     // estrutura de dados
@@ -69,7 +63,6 @@ public class InssFgts{
         salarioLiquido = (tabelaInss,tabelaIrrf) -> salarioBruto -> {
             double descontosInss = calcDescontosInss.apply(tabelaInss,salarioBruto);
             double descontosIrrf = calcDescontosIrrf.apply(tabelaIrrf,salarioBruto);
-
             return salarioBruto - descontosInss - descontosIrrf;
         };
 
@@ -94,12 +87,6 @@ public class InssFgts{
         tabelaIrrf.add(new TabelaPadrao(4664.68,  0.275,  869.36));
         tabelaIrrf.add(new TabelaPadrao(1e20,     0.275,  869.36));
 
-        Function<Integer,
-            Function<Integer,
-            Function<Integer, Integer> > >
-                triadder = u -> w -> v -> u + w + v;
-
-
 
         // variaveis de entrada
         final double valorHora = 102,
@@ -113,7 +100,6 @@ public class InssFgts{
 
         System.out.println("aliquota inss " + aliquotaInss.apply(tabelaInss,salarioBruto) );
         System.out.println("descontosInss " + calcDescontosInss.apply(tabelaInss,salarioBruto) );
-
         System.out.println("aliquota irff " + aliquotaIrrf.apply(tabelaIrrf,salarioBruto) );
         System.out.println("deducao irff " + deducaoIrrf.apply(tabelaIrrf,salarioBruto) );
         System.out.println("desc. irff " + calcDescontosIrrf.apply(tabelaIrrf,salarioBruto) );
