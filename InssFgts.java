@@ -57,7 +57,7 @@ public class InssFgts{
             double preCalculoInss =   salarioBruto * aliquotaInss.apply( tabela, salarioBruto);
             return preCalculoInss > teto ? teto : preCalculoInss;
         };
-
+ // -salarios
     public static BiFunction < List<TabelaPadrao>, List<TabelaPadrao> , BiFunction<Double,Double,Double>>
         salarioLiquido = (tabelaInss,tabelaIrrf) -> (teto,salarioBruto) -> {
             double descontosInss = calcDescontosInss.apply(tabelaInss,salarioBruto).apply(teto);
@@ -68,24 +68,24 @@ public class InssFgts{
     public static BiFunction < Double, Double, Double>
         calcSalarioBruto = (valorHora, horasSemanais) ->  valorHora * horasSemanais * 4.5;
 
-    // verificador de horas
+    // -verificador de horas
     public static BiFunction < Double, Double, Boolean>
         isHorasUltrapassadas = (horasSemanaisMax, horasSemanais) -> horasSemanais > horasSemanaisMax;
-
-
+    // -template
 
     public static void main(String []args) {
 
         //  ************************ INPUTS
         //tabelas
         List<TabelaPadrao> tabelaInss = new ArrayList<>();
+        List<TabelaPadrao> tabelaIrrf = new ArrayList<>();
+
         tabelaInss.add(new TabelaPadrao(0.0,      0.0,      0.0));
         tabelaInss.add(new TabelaPadrao(1693.72,  0.08,     0.0));
         tabelaInss.add(new TabelaPadrao(2822.90,  0.09,     0.0));
         tabelaInss.add(new TabelaPadrao(5645.80,  0.11,     0.0));
         tabelaInss.add(new TabelaPadrao(1e20,     0.11,     0.0));
 
-        List<TabelaPadrao> tabelaIrrf = new ArrayList<>();
         tabelaIrrf.add(new TabelaPadrao(350.0,    0.0,      0.0));
         tabelaIrrf.add(new TabelaPadrao(1903.98,  0.075,  142.0));
         tabelaIrrf.add(new TabelaPadrao(2826.65,  0.15,   354.0));
@@ -104,7 +104,7 @@ public class InssFgts{
 
         double salarioBruto = calcSalarioBruto.apply(valorHora,horasSemanais);
 
-        //  *************************** SAIDA:
+        //  *************************** OUTPUTS/actions:
 
         System.out.println("horas semanais ultrapassadas?:" + isHorasUltrapassadas.apply(maxHorasSemanais,horasSemanais) );
         System.out.println("aliquota inss " + aliquotaInss.apply(tabelaInss,salarioBruto) );
